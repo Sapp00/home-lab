@@ -1,0 +1,20 @@
+---
+version: "3"
+
+vars:
+  PROJECT_DIR:
+    sh: "git rev-parse --show-toplevel"
+  CLUSTER_DIR: "{{.PROJECT_DIR}}/cluster"
+
+includes:
+  cluster: .taskfiles/cluster.yaml
+  etcd: .taskfiles/etcd.yaml
+  flux: .taskfiles/flux.yaml
+  format: .taskfiles/format.yaml
+  install: .taskfiles/install.yaml
+  lint: .taskfiles/lint.yaml
+  pre-commit: .taskfiles/pre-commit.yaml
+  rook: .taskfiles/rook.yaml
+  sops: .taskfiles/sops.yaml
+  talos: .taskfiles/talos.yaml
+  terraform: .taskfiles/terraform.yaml

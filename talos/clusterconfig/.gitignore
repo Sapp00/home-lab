@@ -1,0 +1,7 @@
+home-k8s-control01.cluster.local.yaml
+home-k8s-control02.cluster.local.yaml
+home-k8s-control03.cluster.local.yaml
+home-k8s-worker01.cluster.local.yaml
+home-k8s-worker02.cluster.local.yaml
+home-k8s-worker03.cluster.local.yaml
+talosconfig

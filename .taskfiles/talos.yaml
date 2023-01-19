@@ -1,0 +1,218 @@
+---
+version: "3"
+
+vars:
+  DOMAIN_NAME:
+    sh: sops -d "{{.PROJECT_DIR}}/talos/talenv.sops.yaml" | yq -e eval '.domainName' -
+  CLUSTER_NAME:
+    sh: sops -d "{{.PROJECT_DIR}}/talos/talenv.sops.yaml" | yq -e eval '.clusterEndpointName' -
+  NODE_LIST:
+    sh: yq '.nodes[].hostname' talos/talconfig.yaml | tr '\n' ',' | head -c -1
+  ONE_NODE:
+    sh: echo '{{.NODE_LIST}}' | tr ',' '\n' | shuf | head -n1
+  MASTER_LIST:
+    sh: yq '.nodes[] | select(.controlPlane==true) | .hostname ' talos/talconfig.yaml | tr '\n' ',' | head -c -1
+  ONE_MASTER:
+    sh: echo '{{.MASTER_LIST}}' | tr ',' '\n' | shuf | head -n1
+  MASTER_LIST_IP:
+    sh: yq '.nodes[] | select(.controlPlane==true) | .ipAddress ' talos/talconfig.yaml | tr '\n' ',' | head -c -1
+  ONE_MASTER_IP:
+    sh: echo '{{.MASTER_LIST_IP}}' | tr ',' '\n' | shuf | head -n1
+
+tasks:
+  list:
+    desc: List all the hosts
+    silent: true
+    cmds:
+      - |
+        echo {{.NODE_LIST}}
+
+  list-masters:
+    desc: List all the masters
+    silent: true
+    cmds:
+      - |
+        echo {{.MASTER_LIST}}
+
+  get-a-master:
+    silent: true
+    cmds:
+      - echo {{.ONE_MASTER}}
+
+  get-a-node:
+    silent: true
+    cmds:
+      - echo {{.ONE_NODE}}
+
+  debug-node:
+    desc: Create a privileged container on a node for debugging, ex. task talos:debug-node -- <node-name>
+    interactive: true
+    silent: true
+    vars:
+      NODE: '{{.CLI_ARGS | default .ONE_MASTER}}'
+    cmds:
+      - kubectl debug node/{{.NODE}} -it --image=fedora:36 -- bash
+
+  dashboard:
+    desc: Show the Talos dashboard with all the hosts
+    silent: true
+    cmds:
+      - |
+        talosctl -n {{.NODE_LIST}} dashboard
+
+  ctl-all:
+    desc: Talosctl with all the hosts
+    silent: true
+    cmds:
+      - |
+        talosctl -n {{.NODE_LIST}} {{.CLI_ARGS | default "--help"}}
+
+  ctl-one:
+    desc: Talosctl with a single host
+    silent: true
+    cmds:
+      - |
+        talosctl -n {{.ONE_MASTER}} {{.CLI_ARGS | default "--help"}}
+
+  theila:
+    desc: Show the Theila web-ui dashboard with all the hosts
+    silent: true
+    cmds:
+      - |
+        docker pull ghcr.io/siderolabs/theila:latest
+        xdg-open http://localhost:8080/
+        docker run --rm -it --volume ${HOME}/.talos/config:/opt/talosconfig:ro --env TALOSCONFIG=/opt/talosconfig --publish 8080:8080 ghcr.io/siderolabs/theila:latest --address 0.0.0.0
+
+  generate-secrets:
+    dir: "{{.PROJECT_DIR}}"
+    vars:
+      FILENAME: "{{.PROJECT_DIR}}/talos/talsecret.sops.yaml"
+    cmds:
+      - talhelper gensecret > {{.FILENAME}}
+      - sops -e -i {{.FILENAME}}
+    preconditions:
+      - sh: "[ ! -f {{.FILENAME}} ]"
+        msg: "Talos secrets already exist!"
+      - sh: "[ -n $SOPS_AGE_KEY_FILE ]"
+        msg: "Sops not configured yet!"
+
+  generate-configs:
+    desc: Use talhelper to regenerate individual node configs
+    silent: true
+    dir: "{{.PROJECT_DIR}}/talos/"
+    sources:
+      - "{{.PROJECT_DIR}}/talos/talconfig.yaml"
+      - "{{.PROJECT_DIR}}/talos/talsecret.sops.yaml"
+    generates:
+      - "{{.PROJECT_DIR}}/talos/clusterconfig/*"
+      - "{{.PROJECT_DIR}}/talos/clusterconfig/talosconfig"
+      - "{{.PROJECT_DIR}}/talos/clusterconfig/.gitignore"
+    cmds:
+      - |
+        rm -r -f clusterconfig
+        talhelper genconfig
+
+  diff-config:
+    desc: Diff config against running node config
+    vars:
+      NODE: '{{.CLI_ARGS | default .ONE_MASTER}}'
+    cmds:
+      - |
+        talosctl apply-config --dry-run -n {{.NODE}} -f {{.PROJECT_DIR}}/talos/clusterconfig/{{.CLUSTER_NAME}}-{{.NODE}}.yaml
+
+  apply-config:
+    desc: Apply config against running node config
+    vars:
+      NODE: '{{.CLI_ARGS}}'
+    preconditions:
+      - sh: "[ '' -eq {{.NODE}} ]"
+        msg: Node Required!
+    cmds:
+      - |
+        talosctl apply-config -n {{.NODE}} -f {{.PROJECT_DIR}}/talos/clusterconfig/{{.CLUSTER_NAME}}-{{.NODE}}.yaml
+
+  reset-node:
+    desc: Reset a node to defaults
+    vars:
+      NODE: '{{.CLI_ARGS}}'
+    preconditions:
+      - sh: "[ '' -eq {{.NODE}} ]"
+        msg: Node Required!
+    cmds:
+      - |
+        talosctl reset -n {{.NODE}} --graceful
+
+  reset-all-nodes:
+    desc: Apply configs to all nodes
+    cmds:
+      - |
+        cn=$(sops -d "{{.PROJECT_DIR}}/talos/talenv.sops.yaml" | yq -e eval '.domainName' -)
+        while IFS=$'\t' read -r ipAddress controlPlane hostname _; do
+          replaced=${hostname/\$\{domainName\}/$cn}
+          task talos:reset-node -- $replaced
+        done < <(yq e '.nodes[] | [.ipAddress, .controlPlane, .hostname] | @tsv' "{{.PROJECT_DIR}}/talos/talconfig.yaml")
+
+  apply-all:
+    desc: Apply configs to all nodes
+    deps:
+      - task: generate-configs
+    cmds:
+    #      task talos:apply-config -- $replaced
+      - |
+        cn=$(sops -d "{{.PROJECT_DIR}}/talos/talenv.sops.yaml" | yq -e eval '.domainName' -)
+        while IFS=$'\t' read -r ipAddress controlPlane hostname _; do
+          replaced=${hostname/\$\{domainName\}/$cn}
+          echo "ipAddress:  $ipAddress"
+          echo "controlPlane: $controlPlane"
+          echo "hostname:  $replaced"
+          talosctl apply-config -n "$ipAddress" -f {{.PROJECT_DIR}}/talos/clusterconfig/{{.CLUSTER_NAME}}-$replaced.yaml
+        done < <(yq e '.nodes[] | [.ipAddress, .controlPlane, .hostname] | @tsv' "{{.PROJECT_DIR}}/talos/talconfig.yaml")
+
+  init:
+    desc: Apply configs. Assuming that IPs are already set correctly using fixed DHCP assignments.
+    deps:
+      - task: generate-configs
+    cmds:
+      - |
+        cn=$(sops -d "{{.PROJECT_DIR}}/talos/talenv.sops.yaml" | yq -e eval '.domainName' -)
+        while IFS=$'\t' read -r ipAddress controlPlane hostname _; do
+          replaced=${hostname/\$\{domainName\}/$cn}
+          talosctl apply-config -n "$ipAddress" -f {{.PROJECT_DIR}}/talos/clusterconfig/{{.CLUSTER_NAME}}-$replaced.yaml --insecure
+        done < <(yq e '.nodes[] | [.ipAddress, .controlPlane, .hostname] | @tsv' "{{.PROJECT_DIR}}/talos/talconfig.yaml")
+
+  bootstrap:
+    desc: Bootstrap one node
+    cmds:
+      - |
+        while IFS=$'\t' read -r ipAddress controlPlane _; do
+          if [[ $controlPlane -eq true ]]; then
+            echo $ipAddress
+            talosctl bootstrap --nodes $ipAddress
+            break
+          fi
+        done < <(yq e '.nodes[] | [.ipAddress, .controlPlane] | @tsv' "{{.PROJECT_DIR}}/talos/talconfig.yaml")
+
+  get-kubeconfig:
+    desc: Retrieve the kube-file
+    cmds:
+      - talosctl kubeconfig "{{.PROJECT_DIR}}/provision/kubeconfig" -n {{.ONE_MASTER_IP}}
+
+  upgrade:
+    desc: Upgrade Talos on a single node to version in talconfig.yaml
+    # silent: true
+    vars:
+      NODE: '{{.CLI_ARGS | default .ONE_MASTER}}' # Use a master since masters should be upgraded before workers
+      TARGET_VERSION:
+        sh: yq '.talosVersion' talos/talconfig.yaml
+      TARGET_VERSION_IMAGE: "ghcr.io/siderolabs/installer:{{.TARGET_VERSION}}"
+    deps:
+      - task: generate-configs
+    # preconditions:
+    #   - sh: "talosctl apply-config --dry-run -n {{.NODE}} -f {{.PROJECT_DIR}}/talos/clusterconfig/{{.CLUSTER_NAME}}-{{.NODE}}.yaml | grep -q 'No changes.'"
+    #     msg: Node config has changed - apply new config first!
+    cmds:
+      - |
+        echo "Target Version: {{.TARGET_VERSION}}"
+        echo "Target Version Image: {{.TARGET_VERSION_IMAGE}}"
+        echo "Target Node: {{.NODE}}"
+        talosctl upgrade -n {{.NODE}} --image {{.TARGET_VERSION_IMAGE}}

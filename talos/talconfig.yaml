@@ -1,0 +1,209 @@
+debug: true
+clusterName: ${clusterEndpointName}
+talosVersion: v1.3.1
+kubernetesVersion: v1.26.0
+# endpoint: https://${clusterEndpointName}.${domainName}:6443
+endpoint: https://10.10.10.11:6443
+clusterPodNets:
+  - 10.244.0.0/16
+clusterSvcNets:
+  - 10.242.0.0/16
+cniConfig:
+  name: none
+nodes:
+  - hostname: k8s-control01.${domainName}
+    ipAddress: 10.10.10.11
+    installDisk: /dev/sda
+    controlPlane: true
+    nameservers:
+      - ${nameServer}
+      - 8.8.8.8
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+        # vip:
+        # ip: 10.10.10.10
+  - hostname: k8s-control02.${domainName}
+    ipAddress: 10.10.10.12
+    installDisk: /dev/sda
+    controlPlane: true
+    nameservers:
+      - ${nameServer}
+      - 8.8.8.8
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+        # vip:
+        # ip: 10.10.10.10
+  - hostname: k8s-control03.${domainName}
+    ipAddress: 10.10.10.13
+    installDisk: /dev/sda
+    controlPlane: true
+    nameservers:
+      - ${nameServer}
+      - 8.8.8.8
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+        # vip:
+        # ip: 10.10.10.10
+  - hostname: k8s-worker01.${domainName}
+    ipAddress: 10.10.10.21
+    installDisk: /dev/sda
+    controlPlane: false
+    nameservers:
+      - ${nameServer}
+      - 8.8.8.8
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+  - hostname: k8s-worker02.${domainName}
+    ipAddress: 10.10.10.22
+    installDisk: /dev/sda
+    controlPlane: false
+    nameservers:
+      - ${nameServer}
+      - 8.8.8.8
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+  - hostname: k8s-worker03.${domainName}
+    ipAddress: 10.10.10.23
+    installDisk: /dev/sda
+    controlPlane: false
+    nameservers:
+      - ${nameServer}
+      - 8.8.8.8
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+controlPlane:
+  inlinePatch:
+    cluster:
+      secretboxEncryptionSecret: ${secretboxEncryptionSecret}
+      # allowSchedulingOnControlPlanes: true
+      aggregatorCA:
+        crt: ${aggregatorCert}
+        key: ${aggregatorKey}
+      apiServer:
+        admissionControl: []
+        # certSANs:
+        #   - ${clusterEndpointIP}
+        #   - ${clusterEndpointName}.${domainName}
+        extraArgs:
+          feature-gates: MixedProtocolLBService=true,EphemeralContainers=True
+      ca:
+        crt: ${clusterCACert}
+        key: ${clusterCAKey}
+      controllerManager:
+        extraArgs:
+          feature-gates: MixedProtocolLBService=true,EphemeralContainers=True
+          bind-address: 0.0.0.0
+          # node-cidr-mask-size-ipv4: "24"
+          # node-cidr-mask-size-ipv6: "112"
+      discovery:
+        registries:
+          service:
+            disabled: true
+      etcd:
+        ca:
+          crt: ${etcdCACert}
+          key: ${etcdCAKey}
+          # extraArgs:
+          #   listen-metrics-urls: http://0.0.0.0:2381
+          # extraManifests:
+          #   - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
+          #   - https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+      proxy:
+        disabled: true
+        extraArgs:
+          feature-gates: MixedProtocolLBService=true,EphemeralContainers=True
+      scheduler:
+        extraArgs:
+          bind-address: 0.0.0.0
+          feature-gates: MixedProtocolLBService=true,EphemeralContainers=True
+      secret: ${clusterSecret}
+      serviceAccount:
+        key: ${serviceAccountKey}
+      token: ${clusterToken}
+    machine:
+      ca:
+        crt: ${machineCACert}
+        key: ${machineCAKey}
+        # ertSANs:
+        #   - ${clusterEndpointIP}
+        #   - ${clusterEndpointName}.${domainName}
+      files:
+        - content: |
+            [plugins."io.containerd.grpc.v1.cri"]
+              enable_unprivileged_ports = true
+              enable_unprivileged_icmp = true
+          path: /var/cri/conf.d/allow-unpriv-ports.toml
+          op: create
+      kubelet:
+        extraArgs:
+          feature-gates: GracefulNodeShutdown=true,MixedProtocolLBService=true
+          rotate-server-certificates: "true"
+        nodeIP:
+          validSubnets:
+            - 10.10.10.0/24
+              #      network:
+              #        extraHostEntries:
+              #          - ip: ${clusterEndpointIP}
+              #            aliases:
+              #              - ${clusterEndpointName}.${domainName}
+      time:
+        disabled: false
+        servers:
+          - ${nameServer}
+      token: ${machineToken}
+worker:
+  inlinePatch:
+    cluster:
+      secretboxEncryptionSecret: ${secretboxEncryptionSecret}
+      ca:
+        crt: ${clusterCACert}
+        key: ${clusterCAKey}
+      discovery:
+        registries:
+          service:
+            disabled: true
+            #      extraManifests:
+            #        - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
+            #        - https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+      secret: ${clusterSecret}
+      token: ${clusterToken}
+    machine:
+      ca:
+        crt: ${machineCACert}
+        key: ${machineCAKey}
+        #      certSANs:
+        #        - ${clusterEndpointIP}
+        #        - ${clusterEndpointName}.${domainName}
+      files:
+        - content: |
+            [plugins."io.containerd.grpc.v1.cri"]
+              enable_unprivileged_ports = true
+              enable_unprivileged_icmp = true
+          path: /var/cri/conf.d/allow-unpriv-ports.toml
+          op: create
+      kubelet:
+        extraArgs:
+          feature-gates: MixedProtocolLBService=true,EphemeralContainers=True
+          rotate-server-certificates: "true"
+        nodeIP:
+          validSubnets:
+            - 10.10.10.0/24
+              #      network:
+              #        extraHostEntries:
+              #          - ip: ${clusterEndpointIP}
+              #            aliases:
+              #              - ${clusterEndpointName}.${domainName}
+      sysctls:
+        fs.inotify.max_user_instances: "8192"
+        fs.inotify.max_user_watches: "1048576"
+      time:
+        disabled: false
+        servers:
+          - ${nameServer}
+      token: ${machineToken}

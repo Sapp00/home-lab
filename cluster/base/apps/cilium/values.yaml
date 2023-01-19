@@ -1,0 +1,39 @@
+bgp:
+  enabled: true
+  announce:
+    loadbalancerIP: true
+    podCIDR: true
+
+securityContext:
+  privileged: true
+
+ipam:
+  mode: kubernetes
+
+hostServices:
+  enabled: true
+
+externalIPs:
+  enabled: true
+
+nodePort:
+  enabled: true
+
+hostPort:
+  enabled: true
+
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+  tls:
+    enabled: false
+
+#ingressController:
+#  enabled: true
+
+kubeProxyReplacement: strict
+k8sServiceHost: 10.10.10.11
+k8sServicePort: 6443

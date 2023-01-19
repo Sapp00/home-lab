@@ -1,0 +1,22 @@
+installCRDs: true
+replicaCount: 3
+extraArgs:
+  - --dns01-recursive-nameservers=1.1.1.1:53,9.9.9.9:53
+  - --dns01-recursive-nameservers-only
+podDnsPolicy: None
+podDnsConfig:
+  nameservers:
+    - "1.1.1.1"
+    - "9.9.9.9"
+webhook:
+  enabled: false
+  securePort: 10260
+  hostNetwork: true
+startupapicheck:
+  timeout: 5m
+rbac:
+  create: true
+global:
+  leaderElection:
+    # Override the namespace used to store the ConfigMap for leader election
+    namespace: "cert-manager"

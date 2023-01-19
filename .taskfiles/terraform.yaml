@@ -1,0 +1,23 @@
+---
+version: "3"
+
+vars:
+
+tasks:
+  init:
+    desc: Initialize terraform
+    silent: true
+    cmds:
+      - |
+        terraform -chdir=terraform/local init
+  apply:
+    desc: Apply the terraform configuration
+    silent: true
+    cmds:
+      - |
+        terraform -chdir=terraform/local apply
+  destroy-talos:
+    desc: Destroy talos cluster
+    silent: true
+    cmds:
+      - terraform -chdir=terraform/local destroy
