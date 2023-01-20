@@ -36,3 +36,9 @@ variable "boot_disk_size" {
     type = string
     default = "32G"
 }
+
+variable "persistent_disk_size" {
+    description = "The size of the persistent storage. A numeric string with G, M, or K appended ex: 512M or 32G."
+    type = string
+    default = "32G"
+}

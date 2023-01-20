@@ -9,7 +9,6 @@ vars:
 includes:
   cluster: .taskfiles/cluster.yaml
   etcd: .taskfiles/etcd.yaml
-  flux: .taskfiles/flux.yaml
   format: .taskfiles/format.yaml
   install: .taskfiles/install.yaml
   lint: .taskfiles/lint.yaml

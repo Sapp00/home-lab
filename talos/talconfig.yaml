@@ -207,3 +207,7 @@ worker:
         servers:
           - ${nameServer}
       token: ${machineToken}
+      disks:
+        - device: /dev/vda
+          partitions:
+            - mountpoint: /var/mnt/ceph

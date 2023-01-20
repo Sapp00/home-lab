@@ -22,7 +22,7 @@ resource "proxmox_vm_qemu" "talos-worker-node" {
     }
     disk {
         type    = "virtio"
-        size    = var.boot_disk_size
+        size    = var.persistent_disk_size
         storage = var.boot_disk_storage_pool
     }
     onboot      = true
