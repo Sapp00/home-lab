@@ -26,3 +26,6 @@ helmCharts:
     releaseName: kube-prometheus-stack
     namespace: monitoring
     valuesFile: values.yaml
+
+generators:
+  - ./secret-generator.yaml

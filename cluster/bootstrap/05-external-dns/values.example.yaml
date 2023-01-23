@@ -10,7 +10,7 @@ interval: 30s
 crd:
   create: true
 
-provider: aws
+provider: cloudflare
 cloudflare:
   ## `CF_API_TOKEN` to set in the environment
   ##

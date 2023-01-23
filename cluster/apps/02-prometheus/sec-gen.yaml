@@ -1,0 +1,7 @@
+apiVersion: viaduct.ai/v1
+kind: ksops
+metadata:
+  # Specify a name
+  name: sec-gen-prom
+files:
+  - ./service.enc.yaml
