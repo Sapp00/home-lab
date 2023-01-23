@@ -16,7 +16,7 @@ resources:
   - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.58.0/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
   - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/v0.58.0/example/prometheus-operator-crd/monitoring.coreos.com_thanosrulers.yaml
   - ingress.yaml
-  - service.yaml
+#  - service.yaml
 
 helmCharts:
   - name: kube-prometheus-stack
