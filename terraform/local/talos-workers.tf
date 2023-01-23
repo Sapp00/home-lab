@@ -21,9 +21,17 @@ resource "proxmox_vm_qemu" "talos-worker-node" {
         macaddr = jsondecode(data.sops_file.secs.raw).workers[ each.value ].macaddr
     }
     disk {
-        type    = "virtio"
-        size    = var.persistent_disk_size
-        storage = var.boot_disk_storage_pool
+        type     = "scsi"
+        size     = var.boot_disk_size
+        storage  = var.boot_disk_storage_pool
+        format   = "raw"
+    }
+    disk {
+        type     = "scsi"
+        size     = var.persistent_disk_size
+        storage  = var.boot_disk_storage_pool
+        format   = "raw"
+        iothread = 1
     }
     onboot      = true
     agent       = var.qemu_guest_agent

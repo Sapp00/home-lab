@@ -1,0 +1,33 @@
+#txtOwnerId: homelab-name
+#txtPrefix: txt.
+#registry: txt
+domainFilters:
+  - example.com
+
+policy: sync
+interval: 30s
+
+crd:
+  create: true
+
+provider: aws
+cloudflare:
+  ## `CF_API_TOKEN` to set in the environment
+  ##
+  apiToken: "fill it"
+  ## `CF_API_KEY` to set in the environment
+  ##
+  apiKey: ""
+  ## Use an existing secret with keys "cloudflare_api_token" or "cloudflare_api_key" defined.
+  ## This ignores cloudflare.apiToken, and cloudflare.apiKey
+  ##
+  # secretName:
+  ## `CF_API_EMAIL` to set in the environment
+  ##
+  email: "test@test.test"
+  ## Enable the proxy feature of Cloudflare
+  ##
+  proxied: true
+
+# nodeSelector:
+#  kubernetes.io/arch: amd64

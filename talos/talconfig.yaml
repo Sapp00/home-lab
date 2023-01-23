@@ -208,6 +208,6 @@ worker:
           - ${nameServer}
       token: ${machineToken}
       disks:
-        - device: /dev/vda
+        - device: /dev/sdb
           partitions:
             - mountpoint: /var/mnt/ceph

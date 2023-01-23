@@ -1,0 +1,87 @@
+kubeProxy:
+  enabled: false
+
+kube-state-metrics:
+  metricLabelsAllowlist:
+    - "persistentvolumeclaims=[*]"
+  prometheus:
+    monitor:
+      enabled: true
+      relabelings:
+        - action: replace
+          regex: (.*)
+          replacement: $1
+          targetLabel: kubernetes_node
+          sourceLabels:
+            - __meta_kubernetes_pod_node_name
+
+grafana:
+  enabled: true
+  forceDeployDashboards: true
+  sidecar:
+    dashboards:
+      multicluster:
+        etcd:
+          enabled: true
+
+kubelet:
+  enabled: true
+  serviceMonitor:
+    metricRelabelings:
+      - action: replace
+        sourceLabels:
+          - node
+        targetLabel: instance
+
+kubeControllerManager:
+  enabled: true
+  endpoints:
+    - 10.10.10.21
+    - 10.10.10.22
+    - 10.10.10.23
+kubeScheduler:
+  enabled: true
+  endpoints:
+    - 10.10.10.21
+    - 10.10.10.22
+    - 10.10.10.23
+kubeEtcd:
+  enabled: true
+  endpoints:
+    - 10.10.10.21
+    - 10.10.10.22
+    - 10.10.10.23
+  service:
+    enabled: true
+    port: 2381
+    targetPort: 2381
+
+nodeExporter:
+  serviceMonitor:
+    relabelings:
+      - action: replace
+        regex: (.*)
+        replacement: $1
+        sourceLabels:
+          - __meta_kubernetes_pod_node_name
+        targetLabel: kubernetes_node
+
+prometheus:
+  prometheusSpec:
+    ruleSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    retention: 7d
+    retentionSize: "9GB"
+    walCompression: true
+    resources:
+      requests:
+        memory: 400Mi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "ssd"
+          resources:
+            requests:
+              storage: 10Gi

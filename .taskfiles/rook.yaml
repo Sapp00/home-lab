@@ -3,7 +3,7 @@ version: "3"
 
 
 vars:
-  NAMESPACE: storage
+  NAMESPACE: rook-ceph
   POOL: ceph-block
   VOLUMESNAPSHOTCLASS: csi-rbdplugin-snapclass
 
@@ -12,7 +12,20 @@ tasks:
     desc: Exec into the Rook Ceph toolbox
     interactive: true
     cmds:
-      - kubectl -n {{.NAMESPACE}} exec -it $(kubectl -n {{.NAMESPACE}} get pod -l "app=rook-ceph-tools" -o jsonpath='{.items[0].metadata.name}') -- bash
+      - |
+        curl -fsSL -o toolbox.yaml https://raw.githubusercontent.com/rook/rook/master/deploy/examples/toolbox.yaml
+        kubectl create -f toolbox.yaml -n {{.NAMESPACE}}
+        kubectl -n rook-ceph rollout status deploy/rook-ceph-tools
+        kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- bash
+    #    kubectl -n {{.NAMESPACE}} exec -it $(kubectl -n {{.NAMESPACE}} get pod -l "app=rook-ceph-tools" -o jsonpath='{.items[0].metadata.name}') -- bash
+    silent: true
+
+  toolbox-clean:
+    desc: Cleanup the toolbox
+    interactive: true
+    cmds:
+      - |
+        kubectl delete -f toolbox.yaml
     silent: true
 
   rook-password:
