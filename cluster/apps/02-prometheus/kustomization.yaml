@@ -28,4 +28,4 @@ helmCharts:
     valuesFile: values.yaml
 
 generators:
-  - ./secret-generator.yaml
+  - ./sec-gen.yaml
