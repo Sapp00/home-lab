@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: "https://github.com/sapp00/home-lab.git"
-    path: cluster/apps/rook/01-operator
+    path: cluster/apps/01-rook/01-operator
     targetRevision: main
   destination:
     server: "https://kubernetes.default.svc"
@@ -28,7 +28,7 @@ spec:
   project: default
   source:
     repoURL: "https://github.com/sapp00/home-lab.git"
-    path: cluster/apps/rook/02-cluster
+    path: cluster/apps/01-rook/02-cluster
     targetRevision: main
   destination:
     server: "https://kubernetes.default.svc"

@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: "https://github.com/sapp00/home-lab.git"
-    path: cluster/apps/prometheus
+    path: cluster/apps/02-prometheus
     targetRevision: main
   destination:
     server: "https://kubernetes.default.svc"
