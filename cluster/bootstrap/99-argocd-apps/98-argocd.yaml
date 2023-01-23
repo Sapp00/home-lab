@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: "https://github.com/sapp00/home-lab.git"
-    path: cluster/bootstrap/07-argocd
+    path: cluster/bootstrap/98-argocd
     targetRevision: main
   destination:
     server: "https://kubernetes.default.svc"

@@ -2,6 +2,18 @@
 
 
 # Deployment
+
+## Setup SOPS Age Key
+
+Create the key
+
+    age-keygen -o age.agekey
+
+Create a secret based on the key
+
+    cat age.agekey | kubectl create secret generic sops-age --namespace=openshift-gitops \
+    --from-file=key.txt=/dev/stdin
+
     task terraform:init
     task terraform:apply
     task talos:generate-configs

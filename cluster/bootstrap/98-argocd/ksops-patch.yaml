@@ -11,6 +11,9 @@ spec:
       volumes:
         - name: custom-tools
           emptyDir: {}
+        - name: sops-age
+          secret:
+            secretName: sops-age
       # 2. Use an init container to download/copy custom binaries into the emptyDir
       initContainers:
         - name: install-ksops
@@ -35,6 +38,9 @@ spec:
             - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
               name: custom-tools
               subPath: ksops
+            - mountPath: /.config/sops/age/keys.txt
+              name: sops-age
+              subPath: keys.txt
           # 4. Set the XDG_CONFIG_HOME env variable to allow kustomize to detect the plugin
           env:
             - name: XDG_CONFIG_HOME
