@@ -4,6 +4,7 @@ version: "3"
 vars:
   TARGET_PATH: '~/.sops'
   TARGET_FILE: "{{.TARGET_PATH}}/key.txt"
+  SOPS_NAMESPACES: "traefik,argocd,monitoring"
 
 tasks:
 
@@ -11,7 +12,6 @@ tasks:
     vars:
       TEMP_FILE:
         sh: mktemp -u
-      SOPS_NAMESPACES: "traefik,argocd,monitoring"
     cmds:
       - age-keygen -o {{.TEMP_FILE}}
       - mkdir -p {{.TARGET_PATH}}
