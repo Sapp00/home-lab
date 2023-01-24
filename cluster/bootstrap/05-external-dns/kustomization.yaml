@@ -10,3 +10,6 @@ helmCharts:
     repo: https://charts.bitnami.com/bitnami
     version: 6.8.1
     valuesFile: values.yaml
+
+generators:
+  - secret-generator.yaml
