@@ -9,4 +9,4 @@ resources:
   - 04-reflector.yaml
   - 05-external-dns.yaml
   - 06-traefik.yaml
-  - 07-argocd.yaml
+  - 98-argocd.yaml

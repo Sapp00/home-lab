@@ -11,6 +11,12 @@ data:
   # https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/argocd-cm.yaml#L235
   # Thanks a ton to @onedr0p, @toboshii, and @xUnholy for the help in figuring this out!
   application.instanceLabelKey: argocd.argoproj.io/instance
+  # for helm-secrets
+  helm.valuesFileSchemes: >-
+    secrets+gpg-import, secrets+gpg-import-kubernetes,
+    secrets+age-import, secrets+age-import-kubernetes,
+    secrets,secrets+literal,
+    https
 ---
 apiVersion: v1
 kind: ConfigMap

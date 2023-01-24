@@ -1,0 +1,8 @@
+policy: sync
+interval: 30s
+
+crd:
+  create: true
+
+# nodeSelector:
+#  kubernetes.io/arch: amd64
