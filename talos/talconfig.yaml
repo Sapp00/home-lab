@@ -191,6 +191,7 @@ worker:
         extraArgs:
           feature-gates: MixedProtocolLBService=true,EphemeralContainers=True
           rotate-server-certificates: "true"
+          node-labels: "openebs.io/engine=mayastor"
         nodeIP:
           validSubnets:
             - 10.10.10.0/24
@@ -202,6 +203,7 @@ worker:
       sysctls:
         fs.inotify.max_user_instances: "8192"
         fs.inotify.max_user_watches: "1048576"
+        vm.nr_hugepages: "1024" # mayastor
       time:
         disabled: false
         servers:
@@ -209,5 +211,3 @@ worker:
       token: ${machineToken}
       disks:
         - device: /dev/sdb
-          partitions:
-            - mountpoint: /var/mnt/ceph

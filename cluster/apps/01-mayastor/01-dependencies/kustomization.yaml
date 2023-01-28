@@ -1,0 +1,16 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: mayastor
+
+# make sure namespace exists
+resources:
+  - namespace.yaml
+  - https://raw.githubusercontent.com/openebs/mayastor-control-plane/v1.0.5/deploy/operator-rbac.yaml
+  - https://raw.githubusercontent.com/openebs/mayastor-control-plane/v1.0.5/deploy/mayastorpoolcrd.yaml
+  - https://raw.githubusercontent.com/openebs/mayastor/v1.0.5/deploy/nats-deployment.yaml
+  # etcd
+  - https://raw.githubusercontent.com/openebs/mayastor/v1.0.5/deploy/etcd/storage/localpv.yaml
+  - https://raw.githubusercontent.com/openebs/mayastor/v1.0.5/deploy/etcd/statefulset.yaml
+  - https://raw.githubusercontent.com/openebs/mayastor/v1.0.5/deploy/etcd/svc.yaml
+  - https://raw.githubusercontent.com/openebs/mayastor/v1.0.5/deploy/etcd/svc-headless.yaml

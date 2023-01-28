@@ -1,0 +1,27 @@
+---
+apiVersion: "openebs.io/v1alpha1"
+kind: MayastorPool
+metadata:
+  name: pool-worker-1
+  namespace: mayastor
+spec:
+  node: k8s-worker01
+  disks: ["/dev/sdb"]
+---
+apiVersion: "openebs.io/v1alpha1"
+kind: MayastorPool
+metadata:
+  name: pool-worker-2
+  namespace: mayastor
+spec:
+  node: k8s-worker02
+  disks: ["/dev/sdb"]
+---
+apiVersion: "openebs.io/v1alpha1"
+kind: MayastorPool
+metadata:
+  name: pool-worker-3
+  namespace: mayastor
+spec:
+  node: k8s-worker03
+  disks: ["/dev/sdb"]

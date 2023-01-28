@@ -2,6 +2,19 @@
 version: "3"
 
 tasks:
+  bootstrap:
+    desc: bootstrap the necessary packages to start the cluster
+    cmd:
+      - |
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/00-requirements --enable-alpha-plugins --enable-helm | kubectl apply -f -
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/01-cilium --enable-alpha-plugins --enable-helm | kubectl apply -f -
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/03-cert-manager --enable-alpha-plugins --enable-helm | kubectl apply -f -
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/04-reflector --enable-alpha-plugins --enable-helm | kubectl apply -f -
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/05-external-dns --enable-alpha-plugins --enable-helm | kubectl apply -f -
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/06-traefik --enable-alpha-plugins --enable-helm | kubectl apply -f -
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/98-argocd --enable-alpha-plugins --enable-helm | kubectl apply -f -
+        kubectl kustomize {{.CLUSTER_DIR}}/cluster/bootstrap/99-argocd-apps --enable-alpha-plugins --enable-helm | kubectl apply -f -
+
   k10-password:
     desc: Retrieve the grafana admin password
     silent: true

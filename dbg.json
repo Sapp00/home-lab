@@ -1,0 +1,61 @@
+{
+    "apiVersion": "v1",
+    "kind": "Namespace",
+    "metadata": {
+        "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Namespace\",\"metadata\":{\"annotations\":{},\"name\":\"mayastor\"}}\n"
+        },
+        "creationTimestamp": "2023-01-26T21:46:08Z",
+        "deletionTimestamp": "2023-01-27T08:43:26Z",
+        "labels": {
+            "kubernetes.io/metadata.name": "mayastor"
+        },
+        "name": "mayastor",
+        "resourceVersion": "1586243",
+        "uid": "8d693150-c7e6-4a52-9f50-260c81de4354"
+    },
+    "spec": {
+        "finalizers": [
+        ]
+    },
+    "status": {
+        "conditions": [
+            {
+                "lastTransitionTime": "2023-01-27T08:43:31Z",
+                "message": "Discovery failed for some groups, 1 failing: unable to retrieve the complete list of server APIs: metrics.k8s.io/v1beta1: the server is currently unable to handle the request",
+                "reason": "DiscoveryFailed",
+                "status": "True",
+                "type": "NamespaceDeletionDiscoveryFailure"
+            },
+            {
+                "lastTransitionTime": "2023-01-27T08:43:34Z",
+                "message": "All legacy kube types successfully parsed",
+                "reason": "ParsedGroupVersions",
+                "status": "False",
+                "type": "NamespaceDeletionGroupVersionParsingFailure"
+            },
+            {
+                "lastTransitionTime": "2023-01-27T08:45:02Z",
+                "message": "Failed to delete all resource types, 1 remaining: unexpected items still remain in namespace: mayastor for gvr: /v1, Resource=pods",
+                "reason": "ContentDeletionFailed",
+                "status": "True",
+                "type": "NamespaceDeletionContentFailure"
+            },
+            {
+                "lastTransitionTime": "2023-01-27T08:43:34Z",
+                "message": "Some resources are remaining: mayastorpools.openebs.io has 3 resource instances, pods. has 5 resource instances",
+                "reason": "SomeResourcesRemain",
+                "status": "True",
+                "type": "NamespaceContentRemaining"
+            },
+            {
+                "lastTransitionTime": "2023-01-27T08:43:34Z",
+                "message": "Some content in the namespace has finalizers remaining: io.mayastor.pool/cleanup in 3 resource instances",
+                "reason": "SomeFinalizersRemain",
+                "status": "True",
+                "type": "NamespaceFinalizersRemaining"
+            }
+        ],
+        "phase": "Terminating"
+    }
+}

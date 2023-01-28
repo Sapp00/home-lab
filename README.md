@@ -19,6 +19,11 @@ Create a secret based on the key
     task talos:generate-configs
     task talos:init
     task talos:bootstrap
-    kubectl apply -f https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
-    kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-    kubectl kustomize --enable-helm cluster/base/apps/cilium/ | kubectl apply -f -
+
+Now the nodes should boot up, but have TLS errors which is expected behavior. After applying the first two modules, they should be gone.
+
+    kubectl kustomize cluster/bootstrap/{id} --enable-helm --enable-alpha-plugins | kubectl apply -f -
+
+Some apps are using SOPS encrypted secrets - to decrypt them you need to store your AGE key on the cluster. There is a handy task to do so.
+
+    task sops:create-kube-secret

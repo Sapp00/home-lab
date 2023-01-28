@@ -2,14 +2,14 @@ resource "proxmox_vm_qemu" "talos-worker-node" {
     for_each    = nonsensitive(toset(keys( jsondecode(data.sops_file.secs.raw).workers)))
     name        = "${var.cluster_name}-${  jsondecode(data.sops_file.secs.raw).workers[ each.value ].name}"
  #   iso         = var.iso_image_location
-    clone       = "talos"
+    clone       = jsondecode(data.sops_file.secs.raw).workers[ each.value ].template
     full_clone  = true
     target_node = jsondecode(data.sops_file.secs.raw).workers[ each.value ].pve-node
     vmid        = each.key
     qemu_os     = "l26" # Linux kernel type
-    memory      = "2048"
+    memory      = "5120"
     cpu         = "kvm64"
-    cores       = 2
+    cores       = 4
     sockets     = 1
     numa        = false
     hotplug     = "network,disk,usb"

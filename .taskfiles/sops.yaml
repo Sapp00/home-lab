@@ -39,7 +39,7 @@ tasks:
     cmds:
       - sops --decrypt --in-place {{.CLI_ARGS}}
 
-  gen-kube-secret:
+  create-kube-secret:
     desc: create a kubernetes secret based on a local AGE key
     cmds:
       - |

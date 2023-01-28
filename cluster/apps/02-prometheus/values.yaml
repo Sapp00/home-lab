@@ -78,10 +78,11 @@ prometheus:
     resources:
       requests:
         memory: 400Mi
+    # need nfs provider
     storageSpec:
       volumeClaimTemplate:
         spec:
-          storageClassName: "ssd"
+          storageClassName: "mayastor-1"
           resources:
             requests:
               storage: 10Gi
