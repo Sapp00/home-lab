@@ -15,7 +15,7 @@ helmCharts:
   - name: kube-prometheus-stack
     repo: https://prometheus-community.github.io/helm-charts
     version: 43.0.0
-    #includeCRDs: true # just for first installation. needs to be commented out afterwards
+    includeCRDs: true # just for first installation. needs to be commented out afterwards
     releaseName: kube-prometheus-stack
     namespace: monitoring
     valuesFile: values.yaml

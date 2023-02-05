@@ -5,6 +5,8 @@ vars:
   TARGET_PATH: '~/.sops'
   TARGET_FILE: "{{.TARGET_PATH}}/key.txt"
   SOPS_NAMESPACES: "traefik,argocd,monitoring"
+  CONFIG_PATH: "{{.PROJECT_DIR}}/cluster/.sops.yaml"
+  ENCRYPTED_KEYS: "data|stringData" # separate by |
 
 tasks:
 
@@ -25,19 +27,21 @@ tasks:
       - sh: "[ ! -f {{.TARGET_FILE}} ]"
         msg: "Sops key already exists!"
 
-  encrypt-file:
+  encrypt:
     desc: encrypt sops file 'to use must include -- before path to file.' eg "task sops:encrypt -- file.yml"
     cmds:
       - |
-        filename=$(basename -- "{{.CLI_ARGS}}")
-        extension="${filename##*.}"
-        filename="${filename%.*}"
-        sops --encrypt --age $(cat ~/.sops/key.txt |grep -oP "public key: \K(.*)") $2 $3 $1 > "$filename.enc.$extension"
+        sops --encrypt --age $(cat ~/.sops/key.txt |grep -oP "public key: \K(.*)") --in-place --encrypted-regex '^({{.ENCRYPTED_KEYS}})$' {{.CLI_ARGS}}
 
-  decrypt-file:
+  decrypt:
     desc: decrypt sops file 'to use must include -- before path to file.'  eg "task sops:decrypt -- file.yml"
     cmds:
       - sops --decrypt --in-place {{.CLI_ARGS}}
+
+  edit:
+    desc: decrypt sops file 'to use must include -- before path to file.'  eg "task sops:decrypt -- file.yml"
+    cmds:
+      - sops {{.CLI_ARGS}}
 
   create-kube-secret:
     desc: create a kubernetes secret based on a local AGE key

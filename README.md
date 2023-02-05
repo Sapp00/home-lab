@@ -14,6 +14,8 @@ Create a secret based on the key
     cat age.agekey | kubectl create secret generic sops-age --namespace=openshift-gitops \
     --from-file=key.txt=/dev/stdin
 
+Deploy the Talos Nodes on your PVE cluster.
+
     task terraform:init
     task terraform:apply
     task talos:generate-configs

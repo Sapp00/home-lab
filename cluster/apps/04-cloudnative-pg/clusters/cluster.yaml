@@ -1,0 +1,43 @@
+---
+# Example of PostgreSQL cluster
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: primary-cluster
+spec:
+  instances: 2
+
+  superuserSecret:
+    name: postgres-superuser
+
+
+  bootstrap:
+    initdb:
+      database: gitea
+      owner: gitea
+      secret:
+        name: app-secret
+
+  primaryUpdateStrategy: unsupervised
+
+  # Require 1Gi of space
+  storage:
+    pvcTemplate:
+      storageClassName: freenas-nfs-csi
+      resources:
+        requests:
+          storage: 15Gi
+      accessModes:
+        - ReadWriteMany
+
+  postgresql:
+    parameters:
+      shared_buffers: "128MB"
+  #  pg_hba:
+  #    - host all postgres 127.0.0.1/32 trust
+
+  resources:
+    requests:
+      memory: "512Mi"
+    limits:
+      hugepages-2Mi: "512Mi"

@@ -1,0 +1,27 @@
+csiDriver:
+  name: "org.democratic-csi.nfs"
+
+storageClasses:
+  - name: freenas-nfs-csi
+    defaultClass: false
+    reclaimPolicy: Delete
+    volumeBindingMode: Immediate
+    allowVolumeExpansion: true
+    parameters:
+      fsType: nfs
+
+    mountOptions:
+      - noatime
+      - nfsvers=4
+  #    - nolock
+    secrets:
+      provisioner-secret:
+      controller-publish-secret:
+      node-stage-secret:
+      node-publish-secret:
+      controller-expand-secret:
+
+driver:
+  existingConfigSecret: iscsi-driver-config
+  config:
+    driver: freenas-api-nfs

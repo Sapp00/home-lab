@@ -157,6 +157,9 @@ controlPlane:
         servers:
           - ${nameServer}
       token: ${machineToken}
+      install:
+        extensions:
+          - image: ghcr.io/siderolabs/iscsi-tools:v0.1.1
 worker:
   inlinePatch:
     cluster:
@@ -203,7 +206,7 @@ worker:
       sysctls:
         fs.inotify.max_user_instances: "8192"
         fs.inotify.max_user_watches: "1048576"
-        vm.nr_hugepages: "1024" # mayastor
+        vm.nr_hugepages: "1536 " # mayastor + postgres
       time:
         disabled: false
         servers:
@@ -211,3 +214,6 @@ worker:
       token: ${machineToken}
       disks:
         - device: /dev/sdb
+      install:
+        extensions:
+          - image: ghcr.io/siderolabs/iscsi-tools:v0.1.1

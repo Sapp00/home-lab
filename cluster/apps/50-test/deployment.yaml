@@ -1,0 +1,72 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ubuntu
+  name: ubuntu
+  namespace: test
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      # The settings below have been marked out and can be used when removing the "#"
+      # - name: device-vcsm # Only needed if you want to use your Raspberry Pi MMAL video decoding (Enabled as OpenMax H264 decode in gui settings).
+      #   hostPath:
+      #     path: /dev/vcsm
+      # - name: device-vchiq  #Only needed if you want to use your Raspberry Pi OpenMax video encoding.
+      #   hostPath:
+      #    path: /dev/vchiq
+      # - name: device-video10  #Only needed if you want to use your Raspberry Pi V4L2 video encoding.
+      #   hostPath:
+      #     path: /dev/video10
+      # - name: device-video11  #Only needed if you want to use your Raspberry Pi V4L2 video encoding.
+      #   hostPath:
+      #     path: /dev/video11
+      # - name: device-video12  #Only needed if you want to use your Raspberry Pi V4L2 video encoding.
+      #   hostPath:
+      #      path: /dev/video12
+      containers:
+        - env:
+            - name: PGID
+              value: "\x36\x35\x35\x34\x31" # < ASCII code for '65541'
+            - name: PUID
+              value: "\x31\x30\x34\x34" #< ACII code for '1044'
+            - name: TZ
+              value: Europe/Amsterdam
+          image: ubuntu
+          imagePullPolicy: Always
+          name: ubuntu
+          ports:
+            - containerPort: 8096
+              name: http-tcp
+              protocol: TCP
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /hugepages-2Mi
+              name: hugepage-2mi
+          resources:
+            limits:
+              hugepages-2Mi: 100Mi
+              memory: 100Mi
+            requests:
+              memory: 100Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+        - name: hugepage-2mi
+          emptyDir:
+            medium: HugePages-2Mi
